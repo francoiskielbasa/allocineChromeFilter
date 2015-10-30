@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Allociné Chrome Filter",
-  "description": "Cette extension vous permet de mieux filtrer les scéances sur le site d'allociné",
+  "description": "Permet de cacher les films sans séances aujourd'hui sur le site d'allociné",
   "version": "1.0",
   "page_action": {
     "default_popup": "popup.html",
@@ -27,7 +27,7 @@
         "*://www.allocine.fr/seance/*"
       ],
       "js": [
-        "alcChromeFilter.js"
+        "contentScript.js"
       ]
     }
   ]
