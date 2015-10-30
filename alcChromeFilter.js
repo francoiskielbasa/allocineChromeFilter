@@ -90,16 +90,27 @@ function displayAll(movies) {
     })
 }
 
+function run() {
+    var date = '22:00';
+    var movies = getMovies();
+    var hide;
+    chrome.storage.local.get('hide', function (result) {
+        hide = result.hide;
+        if (hide) {
+            displayNone(movies, date);
+        }
+        else {
+            displayAll(movies);
+        }
+    });
+}
 
-var date = '22:00';
-var movies = getMovies();
-var hide;
-chrome.storage.local.get('hide', function (result) {
-    hide = result.hide;
-    if (hide) {
-        displayNone(movies, date);
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.reload) {
+            run();
+        }
     }
-    else {
-        displayAll();
-    }
-});
+)
+
+run();

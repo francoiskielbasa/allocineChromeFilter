@@ -4,6 +4,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     }
 });
 
+
 /*
  chrome.storage.onChanged.addListener(function (changes, namespace) {
  var storageChange = changes[key];

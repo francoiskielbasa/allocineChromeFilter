@@ -10,5 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 switchButton.addEventListener('click', function () {
     chrome.storage.local.set({'hide': this.checked});
-//    chrome.tabs.executeScript(null, {file : 'alcChromeFilter.js'});
+    chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {reload: true});
+    })
 });
