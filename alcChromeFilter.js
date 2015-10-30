@@ -32,6 +32,10 @@ function getTime(timesElement) {
 }
 
 function isActive(timesElement) {
+    if (timesElement.classList.contains('btn-disabled')) {
+        return false;
+    }
+
     return !timesElement.classList.contains('btn-disabled');
 }
 
@@ -46,7 +50,16 @@ function getMovies() {
 }
 
 function getTimesElements(movieElement) {
-    return movieElement.getElementsByTagName("em");
+    var pan = movieElement.getElementsByClassName("pane");
+    var index;
+
+    for (var i = 0; i < pan.length; i++) {
+        if (!pan[i].classList.contains('hide')) {
+            index = i;
+        }
+    }
+
+    return pan[index].getElementsByTagName("em");
 }
 
 function isDisplaying(movie, value) {
@@ -54,37 +67,51 @@ function isDisplaying(movie, value) {
         return false;
     }
     for (var i = 0; i < movie.time.length; i++) {
-        if (Date.parse('01/01/2001 ' + movie.time[i].datetime) > Date.parse('01/01/2001 ' + value)) {
+        //if (Date.parse('01/01/2001 ' + movie.time[i].datetime) > Date.parse('01/01/2001 ' + value) && movie.time[i].isActive) {
+        if (movie.time[i].isActive) {
             return true;
         }
     }
     return false;
+
 }
+
+function displayNone(movies, date) {
+    movies.forEach(function (movie) {
+        if (!isDisplaying(movie, date)) {
+            movie.element.style.display = 'none';
+        }
+    });
+}
+
+function displayAll(movies) {
+    movies.forEach(function (movie) {
+        movie.element.style.display = 'block';
+    })
+}
+
 
 var date = '22:00';
 var movies = getMovies();
-movies.forEach(function (movie) {
-    if (!isDisplaying(movie, date)) {
-        movie.element.style.display = 'none';
-    }
-
+var hide;
+chrome.storage.local.get('hide', function (result) {
+    hide = result.hide;
 });
-
+displayNone(movies, date);
 /*
- for (var i = 0; i < movies.length; i++) {
- if (countShowing(movies[i]) == 0) {
- movies[i].style.display = "none";
+ if (hide) {
+ displayNone(movies, date);
  }
  */
 
 
 
-//var title = movies[i].querySelector(".titlebar").textContent;
-//var hour = movies[i].querySelector(".showtimescore .times").textContent;
-//alert(title + hour);
-/*
- if ( hour === "Aucune séance pour l'horaire selectionné") {
- movies[i].style.display = "none";
- }
- */
+
+
+
+
+
+
+
+
 

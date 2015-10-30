@@ -1,22 +1,33 @@
 {
   "manifest_version": 2,
-  "name": "Allociné better search",
-  "description": "This extension allow add a better search into allociné.com",
+  "name": "Allociné Chrome Filter",
+  "description": "Cette extension vous permet de mieux filtrer les scéances sur le site d'allociné",
   "version": "1.0",
-  "browser_action": {
-    "default_popup": "dire_bonjour.html",
-    "default_icon": "img/allocine_logo.png"
+  "page_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "19": "img/allocine_logo19.png",
+      "38": "img/allocine_logo38.png"
+    }
   },
   "permissions": [
-    "activeTab"
+    "tabs",
+    "*://www.allocine.fr/seance/*",
+    "storage"
   ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
   "content_scripts": [
     {
       "matches": [
-        "http://www.allocine.fr/seance/*"
+        "*://www.allocine.fr/seance/*"
       ],
       "js": [
-        "alcBetterSearch.js"
+        "alcChromeFilter.js"
       ]
     }
   ]
