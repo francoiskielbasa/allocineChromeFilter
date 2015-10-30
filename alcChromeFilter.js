@@ -67,8 +67,8 @@ function isDisplaying(movie, value) {
         return false;
     }
     for (var i = 0; i < movie.time.length; i++) {
-        //if (Date.parse('01/01/2001 ' + movie.time[i].datetime) > Date.parse('01/01/2001 ' + value) && movie.time[i].isActive) {
-        if (movie.time[i].isActive) {
+        if (Date.parse('01/01/2001 ' + movie.time[i].datetime) > Date.parse('01/01/2001 ' + value) && movie.time[i].isActive) {
+            //if (movie.time[i].isActive) {
             return true;
         }
     }
@@ -96,22 +96,10 @@ var movies = getMovies();
 var hide;
 chrome.storage.local.get('hide', function (result) {
     hide = result.hide;
+    if (hide) {
+        displayNone(movies, date);
+    }
+    else {
+        displayAll();
+    }
 });
-displayNone(movies, date);
-/*
- if (hide) {
- displayNone(movies, date);
- }
- */
-
-
-
-
-
-
-
-
-
-
-
-
