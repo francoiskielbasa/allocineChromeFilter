@@ -9,10 +9,13 @@ function reload () {
 
 var unShowedButton = document.getElementById('unShowedButton');
 var fromButton = document.getElementById('fromButton');
+var toButton = document.getElementById('toButton');
+
 document.addEventListener('DOMContentLoaded', function () {
-    chrome.storage.local.get(['unShowed', 'timeFrom'], function (result) {
+    chrome.storage.local.get(['unShowed', 'timeFrom', 'timeTo'], function (result) {
         unShowedButton.checked = result.unShowed;
         fromButton.value = result.timeFrom;
+        toButton.value = result.timeTo;
     });
 });
 
@@ -24,5 +27,13 @@ unShowedButton.addEventListener('click', function () {
 
 fromButton.addEventListener('change', function () {
 	chrome.storage.local.set({'timeFrom' : this.value});
+	reload();
+});
+
+toButton.addEventListener('change', function () {
+	chrome.storage.local.set({'timeTo' : this.value});
+	if(this.valueAsDate<fromButton.valueAsDate) {
+		document.getElementById('error_message').style.display="block";
+	}
 	reload();
 });
