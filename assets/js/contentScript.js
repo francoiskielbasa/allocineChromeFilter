@@ -82,8 +82,8 @@ function displayAll(movies) {
 
 function run() {
     var movies = getMovies();
-    chrome.storage.local.get('hide', function (result) {
-        var hide = result.hide;
+    chrome.storage.local.get('unShowed', function (result) {
+        var hide = result.unShowed;
         if (hide) {
             displayNone(movies);
         } else {
