@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <title></title>
     <link rel="stylesheet" href="popup.css">
+    <!-- Materialize -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
 </head>
 <body>
-<div>Cacher les films sans séance aujourd'hui</div>
-<div class="onoffswitch" id="showButton">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="switchButton" checked>
-    <label class="onoffswitch-label" for="switchButton"></label>
+
+<div class="switch">
+    <label>
+        Cacher les films sans séance aujourd'hui
+        <input type="checkbox" id="switchButton">
+        <span class="lever"></span>
+    </label>
 </div>
 <script type="text/javascript" src="popup.js"></script>
 </body>
