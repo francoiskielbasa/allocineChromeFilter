@@ -1,0 +1,11 @@
+@import "materialize.scss";
+
+body {
+  width: 313px;
+  margin: 10px 0 10px 10px;
+}
+
+input[type=time] {
+  height: auto;
+  margin: 0;
+}
