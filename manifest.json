@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Allociné Chrome Filter",
-  "description": "Permet de cacher les films sans séances aujourd'hui sur le site d'allociné",
+  "description": "Ajout de filtres sur le site d'Allociné.com",
   "version": "1.0",
   "page_action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "19": "img/allocine_logo19.png",
-      "38": "img/allocine_logo38.png"
+      "19": "assets/img/allocine_logo19.png",
+      "38": "assets/img/allocine_logo38.png"
     }
   },
   "permissions": [
@@ -17,7 +17,7 @@
   ],
   "background": {
     "scripts": [
-      "background.js"
+      "assets/js/background.js"
     ],
     "persistent": false
   },
@@ -27,7 +27,7 @@
         "*://www.allocine.fr/seance/*"
       ],
       "js": [
-        "contentScript.js"
+        "assets/js/contentScript.js"
       ]
     }
   ]
