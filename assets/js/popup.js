@@ -1,7 +1,7 @@
 /**
  * Created by francois on 28/10/15.
  */
-var switchButton = document.getElementById('switchButton');
+var switchButton = document.getElementById('unShowedButton');
 document.addEventListener('DOMContentLoaded', function () {
     chrome.storage.local.get('hide', function (result) {
         switchButton.checked = result.hide;
