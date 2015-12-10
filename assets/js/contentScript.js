@@ -90,16 +90,17 @@ Movie.prototype.shouldBeDisplayed = function (filter) {
         return false;
     }
 
-    //if (filter.startTimeFrom === '') {
-    //    from = '00:00';
-    //} else {
-    from = filter.startTimeFrom;
-    //}
+    if (typeof filter.startTimeFrom !== 'undefined') {
+        from = filter.startTimeFrom;
+    } else {
+        from = '';
+    }
 
-    //if (filter.startTimeTo === '') {
-    //    to = '23:59';
-    //} else {
-    to = filter.startTimeTo;
+    if (typeof filter.startTimeTo !== 'undefined') {
+        to = filter.startTimeTo;
+    } else {
+        to = '';
+    }
     //}
 
     if (from !== '' || to !== '') {
