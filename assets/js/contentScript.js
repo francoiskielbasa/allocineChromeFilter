@@ -29,10 +29,12 @@ function Time(timeElement) {
         return m[2];
     };
 
-    this.dateTime = getTime(timeElement);
-    this.isActive = function (timeElement) {
+    var testIsActive = function (timeElement) {
         return !timeElement.classList.contains('btn-disabled');
     };
+
+    this.dateTime = getTime(timeElement);
+    this.isActive = testIsActive(timeElement);
 }
 
 /**
