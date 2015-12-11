@@ -3,17 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="assets/stylesheets/popup.css">
-    <!-- Materialize -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+    <link rel="stylesheet" href="assets/css/popup.css">
 </head>
 <body>
 <div class="switch">
     <label>
-        Cacher les films sans séance aujourd'hui
-        <input type="checkbox" id="switchButton">
+        Activer les filtres
+        <input type="checkbox" id="activeFilters">
         <span class="lever"></span>
     </label>
+</div>
+<div id="allFilters">
+    <div class="switch">
+        <label>
+            Cacher les films sans séance aujourd'hui
+            <input type="checkbox" id="displayUnShowedButton">
+            <span class="lever"></span>
+        </label>
+    </div>
+    <p>Début du film</p>
+
+    <div class="row valign-wrapper">
+        <label class="col s4 offset-s4" for="fromButton">entre :</label>
+        <input type="time" id="fromButton" class="right-align col s4">
+    </div>
+    <div class="row valign-wrapper">
+        <label class="col s4 offset-s4" for="toButton">et :</label>
+        <input type="time" id="toButton" class="right-align col s4">
+    </div>
+    <div id="error_message" style="display : none;">erreur</div>
 </div>
 <script type="text/javascript" src="assets/js/popup.js"></script>
 </body>
