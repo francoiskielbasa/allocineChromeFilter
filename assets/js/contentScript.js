@@ -1,103 +1,178 @@
 /**
  * Created by francois on 27/10/15.
  */
-function getTimes(movieElement) {
-    if (typeof movieElement.querySelector(".showtimescore .last") !== 'undefined' && movieElement.querySelector(".showtimescore .last").textContent == "Aucune séance pour l'horaire sélectionné ") {
-        return null;
-    }
-    var times = [];
-    var timesElement = getTimesElements(movieElement);
-    for (var i = 0; i < timesElement.length; i++) {
-        var time = {datetime: getTime(timesElement[i]), isActive: isActive(timesElement[i])};
-        times.push(time);
-    }
-    return times;
+
+/**
+ * Class Filter
+ */
+function Filter(isActive, hideUnShowed, startTimeFrom, startTimeTo) {
+    this.isActive = isActive;
+    this.hideUnShowed = hideUnShowed;
+    this.startTimeFrom = startTimeFrom;
+    this.startTimeTo = startTimeTo;
 }
 
-function getTime(timesElement) {
-    var time = timesElement.getAttribute('data-times');
-    var regex = /(\[)"(\d{2}:\d{2})(.*)/;
-    var m;
+/**
+ * Class Movie
+ */
+function Movie(movie, showtimes) {
+    this.movie = movie;
+    this.showtimes = showtimes;
+    this.DOMElement = document.querySelector('#movie' + this.movie.id);
 
-    if ((m = regex.exec(time)) !== null) {
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
+    this.startTimes = function () {
+        var startTimes = [];
+
+        for (var firstKey in this.showtimes) {
+            for (var secondKey in this.showtimes[firstKey].showtimes) {
+                var showtimePart = this.showtimes[firstKey].showtimes[secondKey];
+
+                var startTime = new Date(showtimePart.showStart);
+                startTime.setHours(startTime.getHours() - 1);
+
+                startTimes.push(startTime);
+            }
         }
+
+        return startTimes;
+    };
+
+    this.isDisplayedToday = function () {
+        var now = new Date();
+
+        for (var key in this.startTimes()) {
+            if (this.startTimes()[key] >= now) {
+                return true;
+            }
+        }
+        return false;
     }
-    return m[2];
 }
 
-function isActive(timesElement) {
-    return !timesElement.classList.contains('btn-disabled');
+Movie.prototype.shouldBeDisplayed = function (filter) {
+    var from, to;
+
+    if (!filter.isActive) {
+        return true;
+    }
+
+    if (filter.hideUnShowed && !this.isDisplayedToday()) {
+        return false;
+    }
+
+    if (typeof filter.startTimeFrom !== 'undefined') {
+        from = filter.startTimeFrom;
+    } else {
+        from = '';
+    }
+
+    if (typeof filter.startTimeTo !== 'undefined') {
+        to = filter.startTimeTo;
+    } else {
+        to = '';
+    }
+
+    if (from !== '' || to !== '') {
+        if (from === '') {
+            from = '00:00';
+        }
+        if (to === '') {
+            to = '23:59';
+        }
+
+        for (var key in this.startTimes()) {
+            var startTime = this.startTimes()[key];
+            var fromDate = getDate(from);
+            var toDate = getDate(to);
+
+            if (startTime >= fromDate && startTime <= toDate) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return true;
+};
+
+/**
+ * return Date from "hh:mm" format string
+ */
+function getDate(time) {
+    var today = new Date();
+    var hours = time.split(':')[0];
+    var minutes = time.split(':')[1];
+
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
 }
 
+/**
+ * Function getMovies
+ * return an array of movies
+ */
 function getMovies() {
-    var moviesElement = document.querySelector('.colgeneral').querySelectorAll(".datablock");
+    var data = getData();
+
+    var now = new Date();
+    var showtimesList = getShowtimes(data, now);
+
+
     var movies = [];
-    for (var i = 0; i < moviesElement.length; i++) {
-        var movie = {element: moviesElement[i], time: getTimes(moviesElement[i])};
-        movies.push(movie);
-    }
+
+    var moviesId = Object.keys(data.movies);
+
+    moviesId.forEach(function (id) {
+        //Sometimes, movie has no show-times
+        if (showtimesList.hasOwnProperty(id)) {
+            var showtimes = showtimesList[id];
+            var movie = data.movies[id];
+
+            movies.push(new Movie(movie, showtimes));
+        }
+    });
+
     return movies;
 }
 
-function getTimesElements(movieElement) {
-    var pan = movieElement.getElementsByClassName("pane");
-    var index;
+function getShowtimes(data, date) {
+    var currentTheatre = Object.keys(data.showtimes)[0];
+    var dateString = date.toISOString().slice(0, 10);
 
-    for (var i = 0; i < pan.length; i++) {
-        if (!pan[i].classList.contains('hide')) {
-            index = i;
-        }
-    }
-
-    return pan[index].getElementsByTagName("em");
+    return data.showtimes[currentTheatre][dateString];
 }
 
-function isDisplaying(movie) {
-    if (movie.time === null) {
-        return false;
-    }
-    for (var i = 0; i < movie.time.length; i++) {
-        if (movie.time[i].isActive) {
-            return true;
-        }
-    }
-    return false;
+function getData() {
+    return JSON.parse(document.querySelector('#content-start section').dataset.moviesShowtimes);
 }
 
-function displayNone(movies, date) {
-    movies.forEach(function (movie) {
-        if (!isDisplaying(movie, date)) {
-            movie.element.style.display = 'none';
-        }
+/**
+ * Function run
+ * Main process is here
+ */
+function run(movies) {
+    chrome.storage.local.get(['filtersAreActive', 'hideUnShowed', 'startTimeFrom', 'startTimeTo'], function (result) {
+        var filter = new Filter(result.filtersAreActive, result.hideUnShowed, result.startTimeFrom, result.startTimeTo);
+        movies.forEach(function (movie) {
+            if (movie.shouldBeDisplayed(filter)) {
+                movie.DOMElement.style.display = 'block';
+            } else {
+                movie.DOMElement.style.display = 'none';
+            }
+        });
+
     });
 }
 
-function displayAll(movies) {
-    movies.forEach(function (movie) {
-        movie.element.style.display = 'block';
-    })
-}
-
-function run() {
-    var movies = getMovies();
-    chrome.storage.local.get('hide', function (result) {
-        var hide = result.hide;
-        if (hide) {
-            displayNone(movies);
-        } else {
-            displayAll(movies);
-        }
-    });
-}
-
+/**
+ * Plugin update listener
+ */
 chrome.runtime.onMessage.addListener(
     function (request) {
         if (request.reload) {
-            run();
+            run(movies);
         }
     }
 );
 
-run();
+var movies = getMovies();
+run(movies);

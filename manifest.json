@@ -1,8 +1,9 @@
 {
   "manifest_version": 2,
   "name": "Allociné Chrome Filter",
+  "short_name" : "ACF",
   "description": "Ajout de filtres sur le site d'Allociné.com",
-  "version": "1.0",
+  "version": "2.2",
   "page_action": {
     "default_popup": "popup.html",
     "default_icon": {
