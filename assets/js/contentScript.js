@@ -116,6 +116,9 @@ function getMovies() {
     var now = new Date();
     var showtimesList = getShowtimes(data, now);
 
+    if (!showtimesList) {
+        return null;
+    }
 
     var movies = [];
 
@@ -138,7 +141,9 @@ function getShowtimes(data, date) {
     var currentTheatre = Object.keys(data.showtimes)[0];
     var dateString = date.toISOString().slice(0, 10);
 
-    return data.showtimes[currentTheatre][dateString];
+    var showtimes = data.showtimes[currentTheatre][dateString];
+
+    return (typeof showtimes === 'undefined') ? null : showtimes;
 }
 
 function getData() {
@@ -168,11 +173,14 @@ function run(movies) {
  */
 chrome.runtime.onMessage.addListener(
     function (request) {
-        if (request.reload) {
+        if (request.reload && movies) {
             run(movies);
         }
     }
 );
 
 var movies = getMovies();
-run(movies);
+
+if (movies) {
+    run(movies);
+}
