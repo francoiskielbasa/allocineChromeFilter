@@ -13,72 +13,40 @@ function Filter(isActive, hideUnShowed, startTimeFrom, startTimeTo) {
 }
 
 /**
- * Class Time
- */
-function Time(timeElement) {
-    var getTime = function (timeElement) {
-        var time = timeElement.getAttribute('data-times');
-        var regex = /(\[)"(\d{2}:\d{2})(.*)/;
-        var m;
-
-        if ((m = regex.exec(time)) !== null) {
-            if (m.index === regex.lastIndex) {
-                regex.lastIndex++;
-            }
-        }
-        return m[2];
-    };
-
-    var testIsActive = function (timeElement) {
-        return !timeElement.classList.contains('btn-disabled');
-    };
-
-    this.dateTime = getTime(timeElement);
-    this.isActive = testIsActive(timeElement);
-}
-
-/**
  * Class Movie
  */
-function Movie(DOMElement) {
-    var getTimesElements = function (DOMElement) {
-        var pan = DOMElement.getElementsByClassName("pane");
-        var index;
+function Movie(movie, showtimes) {
+    this.movie = movie;
+    this.showtimes = showtimes;
+    this.DOMElement = document.querySelector('#movie' + this.movie.id);
 
-        for (var i = 0; i < pan.length; i++) {
-            if (!pan[i].classList.contains('hide')) {
-                index = i;
+    this.startTimes = function () {
+        var startTimes = [];
+
+        for (var firstKey in this.showtimes) {
+            for (var secondKey in this.showtimes[firstKey].showtimes) {
+                var showtimePart = this.showtimes[firstKey].showtimes[secondKey];
+
+                var startTime = new Date(showtimePart.showStart);
+                startTime.setHours(startTime.getHours() - 1);
+
+                startTimes.push(startTime);
             }
         }
 
-        return pan[index].getElementsByTagName("em");
+        return startTimes;
     };
 
-    var getTimes = function (DOMElement) {
-        if (typeof DOMElement.querySelector(".showtimescore .last") !== 'undefined' && DOMElement.querySelector(".showtimescore .last").textContent == "Aucune séance pour l'horaire sélectionné ") {
-            return null;
-        }
-        var times = [];
-        var timesElement = getTimesElements(DOMElement);
-        for (var i = 0; i < timesElement.length; i++) {
-            var time = new Time(timesElement[i]);
-            times.push(time);
-        }
-        return times;
-    };
+    this.isDisplayedToday = function () {
+        var now = new Date();
 
-    var testIfIsShowedToday = function (timesArray) {
-        for (var i = 0; i < timesArray.length; i++) {
-            if (timesArray[i].isActive) {
+        for (var key in this.startTimes()) {
+            if (this.startTimes()[key] >= now) {
                 return true;
             }
         }
         return false;
-    };
-
-    this.DOMElement = DOMElement;
-    this.timesArray = getTimes(DOMElement);
-    this.isShowedToday = testIfIsShowedToday(this.timesArray);
+    }
 }
 
 Movie.prototype.shouldBeDisplayed = function (filter) {
@@ -88,7 +56,7 @@ Movie.prototype.shouldBeDisplayed = function (filter) {
         return true;
     }
 
-    if (filter.hideUnShowed && !this.isShowedToday) {
+    if (filter.hideUnShowed && !this.isDisplayedToday()) {
         return false;
     }
 
@@ -103,20 +71,21 @@ Movie.prototype.shouldBeDisplayed = function (filter) {
     } else {
         to = '';
     }
-    //}
 
     if (from !== '' || to !== '') {
-        if (!this.isShowedToday) {
-            return true;
-        }
         if (from === '') {
             from = '00:00';
         }
         if (to === '') {
             to = '23:59';
         }
-        for (var i = 0; i < this.timesArray.length; i++) {
-            if (this.timesArray[i].dateTime >= from && this.timesArray[i].dateTime <= to) {
+
+        for (var key in this.startTimes()) {
+            var startTime = this.startTimes()[key];
+            var fromDate = getDate(from);
+            var toDate = getDate(to);
+
+            if (startTime >= fromDate && startTime <= toDate) {
                 return true;
             }
         }
@@ -127,16 +96,53 @@ Movie.prototype.shouldBeDisplayed = function (filter) {
 };
 
 /**
+ * return Date from "hh:mm" format string
+ */
+function getDate(time) {
+    var today = new Date();
+    var hours = time.split(':')[0];
+    var minutes = time.split(':')[1];
+
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, 0);
+}
+
+/**
  * Function getMovies
  * return an array of movies
  */
 function getMovies() {
-    var moviesElement = document.querySelector('.colgeneral').querySelectorAll(".datablock");
+    var data = getData();
+
+    var now = new Date();
+    var showtimesList = getShowtimes(data, now);
+
+
     var movies = [];
-    for (var i = 0; i < moviesElement.length; i++) {
-        movies.push(new Movie(moviesElement[i]));
-    }
+
+    var moviesId = Object.keys(data.movies);
+
+    moviesId.forEach(function (id) {
+        //Sometimes, movie has no show-times
+        if (showtimesList.hasOwnProperty(id)) {
+            var showtimes = showtimesList[id];
+            var movie = data.movies[id];
+
+            movies.push(new Movie(movie, showtimes));
+        }
+    });
+
     return movies;
+}
+
+function getShowtimes(data, date) {
+    var currentTheatre = Object.keys(data.showtimes)[0];
+    var dateString = date.toISOString().slice(0, 10);
+
+    return data.showtimes[currentTheatre][dateString];
+}
+
+function getData() {
+    return JSON.parse(document.querySelector('#content-start section').dataset.moviesShowtimes);
 }
 
 /**

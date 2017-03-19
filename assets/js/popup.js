@@ -8,11 +8,13 @@ var fromButton = document.getElementById('fromButton');
 var toButton = document.getElementById('toButton');
 
 function reload() {
+
     if (activeFilters.checked) {
         allFilters.style.display = 'block';
     } else {
         allFilters.style.display = 'none';
     }
+
     chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}, function (tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {reload: true});
     })
